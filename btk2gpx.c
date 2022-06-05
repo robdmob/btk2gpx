@@ -30,7 +30,7 @@ void writeHeader() {
 	fseek(btkfile, 15, SEEK_CUR);
 
 	char timebuf[24];
-	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H%M%S.gpx", &timeinfo);
+	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H.%M.%S.gpx", &timeinfo);
 
 	gpxfile = fopen(timebuf,"w");
 
