@@ -10,6 +10,56 @@ FILE *btkfile;
 FILE *gpxfile;
 time_t timestamp;
 
+void writeHeader();
+void writePoint();
+void writeFooter();
+
+int main(int argc, char *argv[]) {
+
+	if (argc < 2) argv[1] = "Upload files.btk";
+
+	btkfile = fopen(argv[1],"rb");
+
+	if (btkfile == NULL) {
+		fprintf(stderr, "File \"%s\" not found.\n", argv[1]);
+		exit(1);
+	}
+
+	for (uint8_t i = 0; i < sizeof(btkheader); i++) {
+		if (fgetc(btkfile) != btkheader[i]) {
+			fprintf(stderr, "File \"%s\" not valid BTK file.\n", argv[1]);
+			fclose(btkfile);
+			exit(1);
+		}
+	}
+
+	while (!feof(btkfile)) {
+
+		switch(fgetc(btkfile)) {
+
+			case 2:
+				writePoint();
+				break;
+
+			case 3:
+				writeHeader();
+				break;
+
+			case 4:
+				writePoint();
+				writeFooter();
+				break;
+
+		}
+
+	}
+
+	fclose(btkfile);
+
+	exit(0);
+
+}
+
 void writeHeader() {
 
 	fseek(btkfile, 1, SEEK_CUR);
@@ -29,12 +79,20 @@ void writeHeader() {
 
 	fseek(btkfile, 15, SEEK_CUR);
 
-	char timebuf[24];
-	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H.%M.%S.gpx", &timeinfo);
+	char filename[24];
+	strftime(filename, sizeof(filename), "%Y-%m-%d %H.%M.%S.gpx", &timeinfo);
 
-	gpxfile = fopen(timebuf,"w");
+	gpxfile = fopen(filename,"w");
+
+	if (gpxfile == NULL) {
+		fprintf(stderr, "Couldn't create file \"%s\".\n", filename);
+		fclose(btkfile);
+		exit(1);
+	}
 
 	fprintf(gpxfile, gpxheader);
+
+	printf("Created file \"%s\".\n", filename);
 
 }
 
@@ -73,38 +131,5 @@ void writePoint() {
 		fprintf(gpxfile, "</trkpt>\n");
 
 	}
-
-}
-
-int main(int argc, char *argv[]) {
-
-	btkfile = fopen("Upload files.btk","r");
-
-	fseek(btkfile, 24, SEEK_SET);
-
-	while (!feof(btkfile)) {
-
-		switch(fgetc(btkfile)) {
-
-			case 2:
-				writePoint();
-				break;
-
-			case 3:
-				writeHeader();
-				break;
-
-			case 4:
-				writePoint();
-				writeFooter();
-				break;
-
-		}
-
-	}
-
-	fclose(btkfile);
-
-	exit(0);
 
 }
