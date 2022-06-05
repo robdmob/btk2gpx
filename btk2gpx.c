@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-
+#include <conio.h>
 #ifdef _WIN32
 #include <Windows.h>
 #endif
@@ -13,13 +13,16 @@ const unsigned char btkheader[]  = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x
 FILE *btkfile;
 FILE *gpxfile;
 time_t timestamp;
+#ifdef _WIN32
+char driveLetter = 0;
+#endif
 
 void writeHeader();
 void writePoint();
 void writeFooter();
-
 #ifdef _WIN32
 void findBackTrack();
+void clearBackTrack();
 #endif
 
 int main(int argc, char *argv[]) {
@@ -67,6 +70,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	fclose(btkfile);
+
+#ifdef _WIN32
+	if (driveLetter != 0) clearBackTrack();
+#endif
 
 	exit(0);
 
@@ -149,7 +156,7 @@ void writePoint() {
 #ifdef _WIN32
 void findBackTrack() {
 
-    char filename[] = "a:\\Upload files.btk";
+    char filename[20] = "a:\\Upload files.btk";
 
     printf("Searching for BackTrack...\n");
 
@@ -158,9 +165,37 @@ void findBackTrack() {
     for (int i = 0; i < 26; i++) {
         if (drivelist >> i & 1) {
             filename[0] = 'A' + i;
-            if (btkfile = fopen(filename, "rb")) break;
+            if (btkfile = fopen(filename, "rb")) {
+				driveLetter = filename[0];
+				break;
+			}
         }
     }
+
+	if (btkfile != NULL) printf("BackTrack found on drive %c:\n", driveLetter);
+
+}
+
+void clearBackTrack() {
+
+	printf("Delete routes from BackTrack? (Y/N)\n");
+
+	if (_getch() == 'y') {
+
+		char filename[20] = "a:\\Upload files.btk";
+
+		filename[0] = driveLetter;
+
+		if (remove(filename) != 0) {
+			printf("Deleted \"%s\".\n", filename);
+
+		}
+		else {
+			fprintf(stderr, "Delete file \"%s\" failed.\n", filename);
+			exit(1);
+		}
+
+	}
 
 }
 #endif
