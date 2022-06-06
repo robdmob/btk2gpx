@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-#include <conio.h>
 #ifdef _WIN32
+#include <conio.h>
 #include <Windows.h>
 #endif
 
