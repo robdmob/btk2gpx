@@ -22,7 +22,7 @@ struct btkstart {
 
 struct btkpoint {
 	unsigned char type;
-	char temperature;
+	signed char temperature;
 	unsigned short count;
 	int elevation;
 	double latitude;
