@@ -29,3 +29,8 @@ clean:
 
 distclean:
 	$(RM) $(TARGET)
+
+ifneq ($(OS), Windows_NT)
+install:
+	cp $(TARGET) /usr/local/bin/
+endif
