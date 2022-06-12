@@ -56,36 +56,31 @@ int main(int argc, char *argv[]) {
 
 	if (btkfile == NULL) {
 		fprintf(stderr, "File \"%s\" not found.\n", argv[1]);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	for (unsigned char i = 0; i < sizeof(btkheader); i++) {
 		if (fgetc(btkfile) != btkheader[i]) {
-			fprintf(stderr, "File \"%s\" not valid BTK file.\n", argv[1]);
 			fclose(btkfile);
-			exit(1);
+			fprintf(stderr, "File \"%s\" not valid BTK file.\n", argv[1]);
+			exit(EXIT_FAILURE);
 		}
 	}
 
 	while (!feof(btkfile)) {
-
 		switch(fgetc(btkfile)) {
-
 			case 2:
 				writePoint();
 				break;
-
 			case 3:
 				writeHeader();
 				break;
-
 			case 4:
 				writePoint();
 				writeFooter();
 				break;
 
 		}
-
 	}
 
 	fclose(btkfile);
@@ -94,7 +89,7 @@ int main(int argc, char *argv[]) {
 	if (driveLetter != 0) clearBackTrack();
 #endif
 
-	exit(0);
+	exit(EXIT_SUCCESS);
 
 }
 
@@ -112,9 +107,9 @@ void writeHeader() {
 	gpxfile = fopen(filename,"w");
 
 	if (gpxfile == NULL) {
-		fprintf(stderr, "Couldn't create file \"%s\".\n", filename);
 		fclose(btkfile);
-		exit(1);
+		fprintf(stderr, "Couldn't create file \"%s\".\n", filename);
+		exit(EXIT_FAILURE);
 	}
 
 	fprintf(gpxfile, gpxheader);
@@ -206,7 +201,7 @@ void clearBackTrack() {
 		}
 		else {
 			fprintf(stderr, "Delete file \"%s\" failed.\n", filename);
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 
 	}
